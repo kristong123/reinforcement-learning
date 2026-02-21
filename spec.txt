@@ -1,0 +1,164 @@
+The interactions between a problem-solving agent and its problem-domain environment are modeled probabilistically using the technique of Markov Decision Processes. Within this framework, the assignment focuses on two approaches to having the agent maximize its expected utility: (A) by a form of planning, in which we assume that the parameters of the MDP (especially the transition model T and the reward function R) are known, which takes the form of Value Iteration, and (B) by an important form of reinforcement learning, called Q-learning, in which we assume that the agent does not know the MDP parameters.
+
+The particular MDPs we are working with in this assignment are variations of a “TOH World”, meaning Towers-of-Hanoi World. We can think of an agent as trying to solve a TOH puzzle instance by wandering around in the state space that corresponds to that puzzle instance. If it solves the puzzle, it will get a big reward. Otherwise, it might get nothing, or perhaps a negative reward for wasting time. In Part 1, the agent is allowed to know the transition model and reward function. In Part 2, the agent is not given that information, but has to learn about good policies by exploring and seeing what states it can get to and how good they seem to be based on what rewards it can get and where states seem to lead to.
+
+This project was created by Steve Tanimoto.
+
+Files you'll edit:
+solver_utils.py
+Utilities for various reinforcement learning algorithms
+Files you should read but NOT edit:
+solvers.py	Reinforcement learning solvers for MDPs
+toh_mdp.py	Definitions for the TOH-world MDP
+Files you can ignore:
+autograder.py	Project autograder
+gui.py	Graphical User Interface for the TOH-world MDP
+test_cases/	Test cases directory to support the autograder
+ 
+
+Files to Edit and Submit: You will download the starter code Download starter codeand unzip it. You will fill in portions of solver_utils.py during the assignment and submit this file to GradescopeLinks to an external site.. Please do not change the other files in this distribution or submit any of our original files other than these file.
+
+Evaluation: Your code will be autograded for technical correctness. Please do not change the names of any provided functions or classes within the code, or you will wreak havoc on the autograder. However, the correctness of your implementation -- not the autograder's judgements -- will be the final judge of your score. If necessary, we will review and grade assignments individually to ensure that you receive due credit for your work.
+
+Academic Dishonesty: We will be checking your code against other submissions in the class for logical redundancy. If you copy someone else's code and submit it with minor changes, we will know. These cheat detectors are quite hard to fool, so please don't try. We trust you all to submit your own work only; please don't let us down. If you do, we will pursue the strongest consequences available to us.
+
+Getting Help: You are not alone! If you find yourself stuck on something, contact the course staff for help. Office hours and the discussion forum are there for your support; please use them. If you can't make our office hours, let us know and we will schedule more. We want these projects to be rewarding and instructional, not frustrating and demoralizing. But, we don't know when or how to help unless you ask.
+
+Discussion: Please be careful not to post spoilers.
+
+Getting Started
+Download and unzip the starter code Download starter code. Make sure you are using at least Python 3.9 which includes the Tkinter user-interface. Note that a specific dependency in Python 3.9 might not be available automatically on WindowsLinks to an external site. so if Windows users see the error No module named 'tzdata', you can resolve it by running
+
+pip install tzdata
+
+In a command line, run
+
+python gui.py
+
+This will start up a graphical user interface, and the interface can help you debug. You can see that some menus are provided. Some menu choices are handled by the starter code, such as setting some parameters of the MDP. However, you will need to implement the code to actually run the Value Iteration and the Q-Learning and some menu buttons will not work correctly until you implement the corresponding functions.
+
+The image below shows an early description of the problem “La Tour d’Hanoi” from the 1895 book by Edouard Lucas. Your program will determine an optimal policy for solving this puzzle, as well as compute utility values for each state of the puzzle.
+
+Figure 1. An early description of the problem “La Tour d’Hanoi” from the 1895 book by Edouard Lucas. Your program will determine an optimal policy for solving this puzzle, as well as compute utility values for each state of the puzzle.
+
+ 
+
+Note on Python Type Annotation
+The first thing you will probably notice is that our code that you will be interacting with, for the most part, is annotated with types. Python is a flexible language that’s great for prototyping small programs, and part of the flexibility comes from its nature as a dynamically typed language. In other words, all the type checking, if it exists at all, happens during runtime. This however can cause issues since it is hard to know what kind of arguments a specific function is expecting. Then students may have a hard time tracking down errors. So for this assignment we type annotated our starter code to help you determine what’s an appropriate input to a function. Furthermore, if you use an IDE with strong support for static inference such as PyCharm, you’ll see an error if your code doesn’t type check. If you wish to read a quick introduction on Type Annotation, this documentLinks to an external site. is a good place to start. If you wish you type-check your code, you can consider the Python Software Foundation funded Python Type Checking program, mypy. You can install mypy with pip install mypy and type check your solution file with
+
+mypy solver_utils.py
+
+Note that mypy will throw a lot of errors if you haven’t completed all the questions. You may want to add some temporary values to suppress these errors before you actually implement those functions.
+
+ 
+
+Autograding
+ 
+
+The included autograder has a number of options. You can view it by
+
+python autograder.py --help
+Some commonly used flags are: --no-graphics, which disables displaying the GUI, -q which grades only one question, and -p, which grades a particular part.
+
+ 
+
+Part 1: Value Iteration (35 points)
+Part 1 is mainly concerned with value iteration. Now would be a good time to review the Bellman equations.
+
+You can test your Part 1 implementations with
+
+python autograder.py -p p1
+
+Q1: Value Iteration Implementation (25 points)
+In solver_utils.py, complete the function that computes one step of value iteration:
+
+def value_iteration(
+     mdp: tm.TohMdp, v_table: tm.VTable
+) -> Tuple[tm.VTable, tm.QTable, float]:
+     """..."""
+Before you write any code, it would be a good idea to take a look at the toh_mdp.py file, which defines all the components of TOH world MDP. In particular, TohState, Operator, TohAction, and most importantly, TohMdp are the classes you will be interacting the most, and you should familiarise yourself with the way these objects interact with each other. When in doubt of the details of any functionality, the best way is to consult the documentation (provided as comments in the code) and the implementation itself.
+
+Make sure you also read the documentation in the code to avoid some common pitfalls.
+
+You can test your implementation with
+
+python autograder.py -q q1
+The autograder will display your value iteration process for a sample TOH MDP. You might notice that the autograder logs lots of additional info. You can suppress this by setting LOGLEVEL from INFO to WARNING in your shell, i.e.,
+
+LOGLEVEL=WARNING python autograder.py -q q1
+Q2: Extracting Policies (10 points)
+In solver_utils.py, complete the function that extracts the policy from the value table:
+
+def extract_policy(
+        mdp: tm.TohMdp, q_table: tm.QTable
+) -> tm.Policy:
+    """..."""
+You can test your implementation with
+
+python autograder.py -q q2
+The autograder will display your value iteration process for a sample TOH MDP as well as the policy during each iteration. You can observe how the policy changes as the values change. Finally, the autograder will simulate an agent’s movement using your learned policy. If your implementation is correct, your agent mostly follows the optimal trajectory. You can view the optimal path by selecting “MDP Rewards” -> “Show golden path (optimal solution)”.
+
+ 
+
+Part 2: Q learning (50 points)
+You can test your Part 2 implementations with
+
+python autograder.py -p p2
+Q3: Q update (20 points)
+Q learning performs an update on the Q-values table upon observing a transition, which in this case is represented as a 
+ tuple.
+
+Implement the q_update function, which updates the q_table based on the observed transition, with the specified learning rate alpha:
+
+def q_update(
+        mdp: tm.TohMdp, q_table: tm.QTable,
+        transition: Tuple[tm.TohState, tm.TohAction, float, tm.TohState],
+        alpha: float) -> None:
+You can test your implementation with
+
+python autograder.py -q q3
+
+Q4: Extract Value Table from Q-value table (10 points)
+Q learning only works with the Q-value table, but sometimes it is useful to know the (estimated) value for a certain state. Implement the extract_v_table function, which computes a value table from the Q-value table:
+
+def extract_v_table(mdp: tm.TohMdp, q_table: tm.QTable) -> tm.VTable:
+
+You can test your implementation with
+
+python autograder.py -q q4
+
+Q5: 
+-Greedy Learning (10 points)
+At the core of on-policy Q learning is the exploration strategy, and 
+-greedy is a commonly used baseline method. In this assignment, your agent is assumed to perform on-policy learning, i.e., the agent actively participates (chooses the next action) when acting and learning, instead of passively learn by observing a sequence of transitions. Implement the choose_next_action below.
+
+def choose_next_action(
+        mdp: tm.TohMdp, state: tm.TohState, epsilon: float, q_table: tm.QTable,
+        epsilon_greedy: Callable[[List[tm.TohAction], float], tm.TohAction]
+) -> tm.TohAction: 
+Make sure you use the supplied epsilon_greedy function to sample the action. You should not need to use the random module. That is handled for you in the QLearningSolver.epsilon_greedy function in solvers.py. Make sure you read its code.
+
+You can test your implementation with
+
+python autograder.py -q q5
+Note that this time the autograder will do a sanity check of your implementation first, and then use your exploration strategy to run for 10,000 Q learning steps with epsilon = 0.2.  You will receive full credit if after 10,000 Q updates, your agent is able to learn the optimal policy on the solution path (it’s ok if the policy for other states are suboptimal).
+
+ 
+
+Q6: Custom Epsilon (10 points)
+If you use a constant 
+ϵ, your program will waste time exploring unnecessary states as time approaches infinity. A common way to mitigate this is to use a function for 
+ that depends on the time step. For example, see slides 44-46 on GLIE: Greedy in the Limit with Infinite Exploration in this PPT presentationLinks to an external site.. Implement the custom_epsilon to design your function of 
+:
+
+def custom_epsilon(n_step: int) -> float:
+You can test your implementation with
+
+python autograder.py -q q6
+Same as Q5, the autograder is going to use your custom 
+ function to perform Q learning, and you will receive full credit if after 10,000 Q updates, your agent is able to learn the optimal policy on the solution path (it’s ok if the policy for other states are suboptimal).
+
+Submission
+Submit your solver_utils.py file to GradescopeLinks to an external site.. You can run the entire test suite with
+
+python autograder.py

@@ -33,6 +33,24 @@ def value_iteration(
     # noinspection PyUnusedLocal
     max_delta = 0.0
     # *** BEGIN OF YOUR CODE ***
+    gamma = mdp.config.gamma
+
+    for state in mdp.nonterminal_states:
+        for action in mdp.actions:
+            q_value = 0.0
+            for next_state in mdp.all_states:
+                prob = mdp.transition(state, action, next_state)
+                if prob == 0.0:
+                    continue
+                reward = mdp.reward(state, action, next_state)
+                q_value += prob * (reward + gamma * v_table.get(next_state, 0.0))
+            q_table[(state, action)] = q_value
+
+        best_q = max(q_table[(state, a)] for a in mdp.actions)
+        delta = abs(best_q - v_table.get(state, 0.0))
+        if delta > max_delta:
+            max_delta = delta
+        new_v_table[state] = best_q
     # ***  END OF YOUR CODE  ***
     return new_v_table, q_table, max_delta
 
