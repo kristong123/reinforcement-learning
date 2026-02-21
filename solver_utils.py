@@ -174,7 +174,9 @@ def custom_epsilon(n_step: int) -> float:
             epsilon value when choosing the nth step.
     """
     # *** BEGIN OF YOUR CODE ***
-
+    import math
+    return math.exp(-n_step / 1000.0)
+    # ***  END OF YOUR CODE  ***
 
 def custom_alpha(n_step: int) -> float:
     """Calculates the alpha value for the nth Q learning step.
@@ -189,3 +191,5 @@ def custom_alpha(n_step: int) -> float:
             alpha value when performing the nth Q update.
     """
     # *** BEGIN OF YOUR CODE ***
+    return 10.0 / (10.0 + n_step)
+    # ***  END OF YOUR CODE  ***
